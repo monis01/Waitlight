@@ -1,0 +1,153 @@
+{
+  "name": "waitlight",
+  "displayName": "Waitlight for Claude Code",
+  "description": "See at a glance which Claude Code sessions are working, done, or waiting for you. Unofficial, fully local.",
+  "version": "0.0.1",
+  "publisher": "monis01",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "waitlight.sessions",
+          "name": "Claude Sessions"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "waitlight.sessions",
+        "contents": "No Claude Code sessions to show yet.\nStart a chat in Claude Code and it will appear here."
+      }
+    ],
+    "commands": [
+      {
+        "command": "waitlight.openSession",
+        "title": "Open Chat",
+        "category": "Waitlight",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "waitlight.refresh",
+        "title": "Refresh",
+        "category": "Waitlight",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "waitlight.showThisFolder",
+        "title": "Show Only This Folder's Sessions",
+        "category": "Waitlight",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "waitlight.showAllFolders",
+        "title": "Show Sessions From All Folders",
+        "category": "Waitlight",
+        "icon": "$(filter-filled)"
+      },
+      {
+        "command": "waitlight.openSettings",
+        "title": "Settings",
+        "category": "Waitlight",
+        "icon": "$(gear)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "waitlight.refresh",
+          "when": "view == waitlight.sessions",
+          "group": "navigation@1"
+        },
+        {
+          "command": "waitlight.showThisFolder",
+          "when": "view == waitlight.sessions && config.waitlight.show != thisFolder",
+          "group": "navigation@2"
+        },
+        {
+          "command": "waitlight.showAllFolders",
+          "when": "view == waitlight.sessions && config.waitlight.show == thisFolder",
+          "group": "navigation@2"
+        },
+        {
+          "command": "waitlight.openSettings",
+          "when": "view == waitlight.sessions",
+          "group": "more@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "waitlight.openSession",
+          "when": "view == waitlight.sessions && viewItem == session",
+          "group": "inline"
+        },
+        {
+          "command": "waitlight.openSession",
+          "when": "view == waitlight.sessions && viewItem == session",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "waitlight.openSession",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Waitlight",
+      "properties": {
+        "waitlight.idleAfterMinutes": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "description": "Show a session as Idle after this many minutes without activity."
+        },
+        "waitlight.show": {
+          "type": "string",
+          "enum": [
+            "all",
+            "thisFolder"
+          ],
+          "default": "all",
+          "enumDescriptions": [
+            "Sessions from every folder",
+            "Only sessions running in this window's folder"
+          ],
+          "description": "Which Claude Code sessions to show."
+        },
+        "waitlight.maxTitleLength": {
+          "type": "number",
+          "default": 24,
+          "minimum": 10,
+          "maximum": 200,
+          "description": "Longest session title shown in the list before it is shortened with \u2026, so the time stays visible. The full title is in the hover card."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "check": "tsc --noEmit",
+    "fake": "node scripts/fake-sessions.js",
+    "fake:live": "node scripts/fake-sessions.js --live"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "1.90.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}
