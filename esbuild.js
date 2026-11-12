@@ -25,12 +25,13 @@ const logPlugin = {
 
 async function main() {
   const ctx = await esbuild.context({
-    entryPoints: ['src/extension.ts'],
+    // extension.js: the extension. uninstall.js: cleanup run on uninstall.
+    entryPoints: { extension: 'src/extension.ts', uninstall: 'src/uninstall.ts' },
     bundle: true,
     format: 'cjs',
     platform: 'node',
     target: 'node18',
-    outfile: 'dist/extension.js',
+    outdir: 'dist',
     external: ['vscode'], // provided by the editor at runtime
     sourcemap: !production,
     minify: production,

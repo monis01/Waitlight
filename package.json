@@ -209,7 +209,8 @@
     "watch": "node esbuild.js --watch",
     "check": "tsc --noEmit",
     "fake": "node scripts/fake-sessions.js",
-    "fake:live": "node scripts/fake-sessions.js --live"
+    "fake:live": "node scripts/fake-sessions.js --live",
+    "vscode:uninstall": "node ./dist/uninstall.js"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
