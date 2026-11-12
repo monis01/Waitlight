@@ -1,8 +1,10 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { readPromptImages } from '../claude/transcripts';
 import { SessionStore } from '../model/sessionStore';
 import { Prompt, Session, STATE_LABEL } from '../model/types';
 import { fullDate, rowTime, stamp, stateTime } from './format';
+import { imagesToLoad, thumbnailGrid } from './thumbnails';
 import { hexDot, sessionName, stateIcon, STATE_ICON } from './theme';
 
 // The "Claude Sessions" section in the Explorer, built like VS Code's own
@@ -52,6 +54,13 @@ export class SessionTreeProvider implements vscode.TreeDataProvider<Node>, vscod
     return node.kind === 'session' ? sessionItem(node.session) : promptItem(node);
   }
 
+  // VS Code calls this when you hover a row whose tooltip was left empty.
+  // Prompt cards are built here, so images are only loaded on hover.
+  resolveTreeItem(item: vscode.TreeItem, node: Node): vscode.TreeItem {
+    if (node.kind === 'prompt' && !item.tooltip) item.tooltip = promptCard(node);
+    return item;
+  }
+
   private update(): void {
     const sessions = this.store.getSessions();
     const changedRows: SessionNode[] = [];
@@ -94,7 +103,7 @@ function rowLook(s: Session): string {
     STATE_ICON[s.state],
     s.state,
     s.cwd,
-    (s.prompts ?? []).map((p) => [p.text, p.at]),
+    (s.prompts ?? []).map((p) => [p.text, p.at, p.images]),
   ]);
 }
 
@@ -114,15 +123,25 @@ function sessionItem(s: Session): vscode.TreeItem {
   item.iconPath = stateIcon(s.state);
   item.contextValue = 'session'; // lets package.json show the "Open chat" button on these rows
   item.tooltip = sessionCard(s);
+  // What a screen reader says for this row (it can't see colors or icons).
+  const why = s.waitingFor ? `, ${s.waitingFor}` : '';
+  item.accessibilityInformation = { label: `${sessionName(s)}, ${stateTime(s).text}${why}`, role: 'treeitem' };
   return item;
 }
 
 function promptItem(node: PromptNode): vscode.TreeItem {
-  const item = new vscode.TreeItem(oneLine(node.prompt.text));
+  const { text, images } = node.prompt;
+  const item = new vscode.TreeItem(text ? oneLine(text) : 'Image');
   item.id = `${node.session.sessionId}:${node.index}`;
   item.iconPath = new vscode.ThemeIcon('comment');
   item.contextValue = 'prompt';
-  item.tooltip = promptCard(node);
+  if (images) item.description = `🖼 ${images}`;
+  const pics = images ? `, ${images} image${images > 1 ? 's' : ''}` : '';
+  item.accessibilityInformation = {
+    label: `Prompt ${node.index + 1} of ${node.session.prompts?.length ?? 0}: ${text || 'image'}${pics}`,
+    role: 'treeitem',
+  };
+  // No tooltip here on purpose: resolveTreeItem builds it on hover.
   return item;
 }
 
@@ -144,7 +163,13 @@ function sessionCard(s: Session): vscode.MarkdownString {
   md.appendMarkdown(`${hexDot(s.state)} **${STATE_LABEL[s.state]}** · ${t.text}\n\n`);
   md.appendMarkdown('**');
   md.appendText(sessionName(s));
-  md.appendMarkdown('**\n\n---\n\n');
+  md.appendMarkdown('**\n\n');
+  if (s.waitingFor) {
+    md.appendMarkdown('$(bell) ');
+    md.appendText(s.waitingFor);
+    md.appendMarkdown('\n\n');
+  }
+  md.appendMarkdown('---\n\n');
 
   md.appendMarkdown('$(folder) ');
   md.appendText(`${path.basename(s.cwd)}  ·  ${s.cwd}`);
@@ -169,11 +194,21 @@ function promptCard(node: PromptNode): vscode.MarkdownString {
   md.appendMarkdown('$(comment) **You asked**');
   if (p.at) md.appendMarkdown(` · ${fullDate(p.at)}`);
   md.appendMarkdown('\n\n---\n\n');
-  md.appendText(p.text);
+  if (p.text) md.appendText(p.text);
+
+  // Attachments: a thumbnail grid in its own section, read from Claude's
+  // chat log (where Claude keeps your images).
+  if (p.images) {
+    const plural = p.images > 1 ? 's' : '';
+    md.appendMarkdown(`\n\n---\n\n$(file-media) **Attachments** · ${p.images} image${plural}\n\n`);
+    const grid = thumbnailGrid(readPromptImages(p, imagesToLoad(p.images)), p.images);
+    if (grid) md.appendMarkdown(`<img src="${grid.src}" width="${grid.width}" height="${grid.height}"/>\n\n`);
+    else md.appendMarkdown('_Preview not available_\n\n');
+  }
+
+
   md.appendMarkdown('\n\n---\n\n');
-  md.appendMarkdown(`${hexDot(s.state)} `);
-  md.appendText(sessionName(s));
-  md.appendMarkdown(` · prompt ${index + 1} of ${total}`);
+  md.appendMarkdown(`Prompt ${index + 1} of ${total}`);
   return md;
 }
 

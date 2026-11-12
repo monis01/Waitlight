@@ -22,11 +22,12 @@ export const STATE_HEX: Record<SessionState, string> = {
   idle: '#848484',
 };
 
-// "~spin" makes a codicon rotate: the native way to show "busy".
+// A different SHAPE per state, not just a color, so it works for colorblind
+// users too. "~spin" makes a codicon rotate: the native way to show "busy".
 export const STATE_ICON: Record<SessionState, string> = {
-  needsYou: 'circle-filled',
+  needsYou: 'bell',
   working: 'loading~spin',
-  done: 'circle-filled',
+  done: 'check',
   idle: 'circle-outline',
 };
 
@@ -40,7 +41,7 @@ export function hexDot(state: SessionState): string {
 }
 
 // The name shown for a session: its title, else the last thing you asked,
-// else a short form of its id.
+// else "New chat" (an open chat with nothing sent yet).
 export function sessionName(s: Session): string {
-  return s.title || s.lastPrompt || `Session ${s.sessionId.slice(0, 8)}`;
+  return s.title || s.lastPrompt || 'New chat';
 }

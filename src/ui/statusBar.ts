@@ -66,6 +66,13 @@ export class StatusBar implements vscode.Disposable {
   }
 }
 
+// Sessions that need you, the one that has waited longest first.
+export function needsYouLongestFirst(sessions: Session[]): Session[] {
+  return sessions
+    .filter((s) => s.state === 'needsYou')
+    .sort((a, b) => (a.stateSince ?? a.updatedAt) - (b.stateSince ?? b.updatedAt));
+}
+
 function countByState(sessions: Session[]): Record<SessionState, number> {
   const counts = { needsYou: 0, working: 0, done: 0, idle: 0 };
   for (const s of sessions) counts[s.state]++;
@@ -90,12 +97,13 @@ function hoverCard(sessions: Session[], counts: Record<SessionState, number>): v
       `<td>&nbsp;&nbsp;</td><td>${lines}</td></tr></table>\n\n`,
   );
 
-  // Only the sessions that need you get named.
-  const waiting = sessions.filter((s) => s.state === 'needsYou');
+  // Only the sessions that need you get named, longest waiting first.
+  const waiting = needsYouLongestFirst(sessions);
   if (waiting.length) {
     md.appendMarkdown('---\n\n');
     for (const s of waiting.slice(0, MAX_NAMES)) {
-      md.appendMarkdown(`<span style="color:${HEX.needsYou};">●</span> ${escape(sessionName(s))}  \n`);
+      const why = s.waitingFor ? ` <span style="color:${HEX.idle};">· ${escape(s.waitingFor)}</span>` : '';
+      md.appendMarkdown(`<span style="color:${HEX.needsYou};">●</span> ${escape(sessionName(s))}${why}  \n`);
     }
     if (waiting.length > MAX_NAMES) md.appendMarkdown(`…and ${waiting.length - MAX_NAMES} more  \n`);
   }
