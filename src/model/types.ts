@@ -9,6 +9,10 @@ export type SessionState = 'needsYou' | 'working' | 'done' | 'idle';
 export interface Prompt {
   text: string;
   at?: number;            // when you sent it
+  images?: number;        // how many images you attached
+  // Where this prompt's line sits in Claude's chat log, so its images can be
+  // loaded only when you hover (they're too big to keep in memory).
+  source?: { file: string; offset: number; length: number };
 }
 
 export interface Session {
@@ -22,6 +26,8 @@ export interface Session {
   startedAt?: number;     // when the session began (keeps the list order stable)
   stateSince?: number;    // when the current state began ("needs you · 4m")
   updatedAt: number;      // last activity of any kind
+  transcriptPath?: string; // Claude's full chat log for this session
+  waitingFor?: string;    // why it needs you, e.g. "Permission to run: npm test"
 }
 
 // Display order: things that need you float to the top.
