@@ -2,14 +2,30 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Waitlight (real Claude sessions)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "preLaunchTask": "npm: watch"
+    },
+    {
       "name": "Run Waitlight (fake sessions)",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}"
+      ],
       "env": {
         "WAITLIGHT_SESSIONS_DIR": "${workspaceFolder}/.dev-sessions"
       },
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "preLaunchTask": "npm: watch"
     }
   ]

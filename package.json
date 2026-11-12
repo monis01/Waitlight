@@ -28,6 +28,12 @@
     "viewsWelcome": [
       {
         "view": "waitlight.sessions",
+        "when": "!waitlight.trackingOn",
+        "contents": "Waitlight needs a one-time setup to see when Claude Code sessions are running, need you, or are done.\n[Set Up Session Tracking](command:waitlight.setUpTracking)\nIt adds a few entries to ~/.claude/settings.json (backed up first) and can be removed any time."
+      },
+      {
+        "view": "waitlight.sessions",
+        "when": "waitlight.trackingOn",
         "contents": "No Claude Code sessions to show yet.\nStart a chat in Claude Code and it will appear here."
       }
     ],
@@ -61,6 +67,18 @@
         "title": "Settings",
         "category": "Waitlight",
         "icon": "$(gear)"
+      },
+      {
+        "command": "waitlight.setUpTracking",
+        "title": "Set Up Session Tracking",
+        "category": "Waitlight",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "waitlight.removeTracking",
+        "title": "Remove Session Tracking",
+        "category": "Waitlight",
+        "icon": "$(debug-disconnect)"
       }
     ],
     "menus": {
@@ -84,6 +102,16 @@
           "command": "waitlight.openSettings",
           "when": "view == waitlight.sessions",
           "group": "more@1"
+        },
+        {
+          "command": "waitlight.setUpTracking",
+          "when": "view == waitlight.sessions && !waitlight.trackingOn",
+          "group": "more@2"
+        },
+        {
+          "command": "waitlight.removeTracking",
+          "when": "view == waitlight.sessions && waitlight.trackingOn",
+          "group": "more@2"
         }
       ],
       "view/item/context": [
