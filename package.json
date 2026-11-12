@@ -1,8 +1,8 @@
 {
   "name": "waitlight",
   "displayName": "Waitlight for Claude Code",
-  "description": "See at a glance which Claude Code sessions are working, done, or waiting for you. Unofficial, fully local.",
-  "version": "0.0.1",
+  "description": "See at a glance which Claude Code sessions are running, done, or waiting for you, and what you asked in each. Unofficial, fully local.",
+  "version": "0.1.0",
   "publisher": "monis01",
   "license": "MIT",
   "private": true,
@@ -10,7 +10,8 @@
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "AI"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -211,12 +212,37 @@
     "fake": "node scripts/fake-sessions.js",
     "fake:live": "node scripts/fake-sessions.js --live",
     "vscode:uninstall": "node ./dist/uninstall.js",
-    "test": "esbuild \"test/*.test.ts\" --bundle --platform=node --format=cjs --outdir=out-test --log-level=warning && node --test \"out-test/*.test.js\""
+    "test": "esbuild \"test/*.test.ts\" --bundle --platform=node --format=cjs --outdir=out-test --log-level=warning && node --test \"out-test/*.test.js\"",
+    "vscode:prepublish": "node esbuild.js --production",
+    "package": "npx @vscode/vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
     "@types/vscode": "1.90.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
+  },
+  "preview": true,
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monis01/Waitlight.git"
+  },
+  "bugs": {
+    "url": "https://github.com/monis01/Waitlight/issues"
+  },
+  "homepage": "https://github.com/monis01/Waitlight#readme",
+  "keywords": [
+    "claude",
+    "claude code",
+    "ai",
+    "agent",
+    "sessions",
+    "status",
+    "notifications"
+  ],
+  "galleryBanner": {
+    "color": "#1e1f24",
+    "theme": "dark"
   }
 }
