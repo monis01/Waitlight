@@ -79,6 +79,24 @@
         "title": "Remove Session Tracking",
         "category": "Waitlight",
         "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "waitlight.nextNeedsYou",
+        "title": "Go to Next Session That Needs You",
+        "category": "Waitlight",
+        "icon": "$(bell)"
+      },
+      {
+        "command": "waitlight.copyPrompt",
+        "title": "Copy Prompt",
+        "category": "Waitlight",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "waitlight.checkSetup",
+        "title": "Check Setup",
+        "category": "Waitlight",
+        "icon": "$(checklist)"
       }
     ],
     "menus": {
@@ -112,6 +130,11 @@
           "command": "waitlight.removeTracking",
           "when": "view == waitlight.sessions && waitlight.trackingOn",
           "group": "more@2"
+        },
+        {
+          "command": "waitlight.checkSetup",
+          "when": "view == waitlight.sessions",
+          "group": "more@3"
         }
       ],
       "view/item/context": [
@@ -124,15 +147,31 @@
           "command": "waitlight.openSession",
           "when": "view == waitlight.sessions && viewItem == session",
           "group": "navigation"
+        },
+        {
+          "command": "waitlight.copyPrompt",
+          "when": "view == waitlight.sessions && viewItem == prompt",
+          "group": "navigation"
         }
       ],
       "commandPalette": [
         {
           "command": "waitlight.openSession",
           "when": "false"
+        },
+        {
+          "command": "waitlight.copyPrompt",
+          "when": "false"
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "waitlight.nextNeedsYou",
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
+      }
+    ],
     "configuration": {
       "title": "Waitlight",
       "properties": {
