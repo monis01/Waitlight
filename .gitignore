@@ -3,3 +3,4 @@ dist/
 .dev-sessions/
 *.vsix
 .DS_Store
+out-test/
